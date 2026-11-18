@@ -43,6 +43,7 @@ export function AiAssistantDrawer({ book, currentPage, isOpen, onClose }: AiAssi
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const lastPromptRef = useRef<string>("");
 
   // Initialize or update welcome message when book or page changes
   useEffect(() => {
@@ -85,9 +86,10 @@ export function AiAssistantDrawer({ book, currentPage, isOpen, onClose }: AiAssi
   };
 
   const handleSendMessage = async (textToSend?: string) => {
-    const userPrompt = textToSend || input.trim();
+    const userPrompt = textToSend || input.trim() || lastPromptRef.current;
     if (!userPrompt || isLoading) return;
 
+    lastPromptRef.current = userPrompt;
     setError(null);
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -339,10 +341,19 @@ export function AiAssistantDrawer({ book, currentPage, isOpen, onClose }: AiAssi
           <div className="p-3.5 rounded-xl bg-rose-950/30 border border-rose-800/50 text-rose-300 text-xs flex items-start gap-2.5">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
             <div className="flex-1">
-              <p className="font-semibold mb-1">NVIDIA AI Service Error</p>
+              <div className="flex items-center justify-between">
+                <p className="font-semibold mb-1">NVIDIA AI Service Error</p>
+                <button
+                  onClick={() => setError(null)}
+                  className="text-zinc-400 hover:text-white p-0.5 cursor-pointer -mt-1"
+                  title="Dismiss error"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
               <p className="text-[11px] text-rose-200/80 mb-2">{error}</p>
               <button
-                onClick={() => handleSendMessage()}
+                onClick={() => handleSendMessage(lastPromptRef.current)}
                 className="px-2.5 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-[10px] font-mono border border-rose-500/40 transition-colors cursor-pointer"
               >
                 Retry Request
