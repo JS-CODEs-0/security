@@ -1,6 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "@/shaders/threeui.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: "#09060e",
+};
 
 export const metadata: Metadata = {
   title: "Digital Safety Intelligence — Seven Field Guides for Cyber Defense",

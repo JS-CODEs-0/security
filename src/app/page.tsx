@@ -65,7 +65,7 @@ export default function Home() {
   };
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-[#09060e] flex flex-col">
+    <main className="relative w-screen h-screen h-[100dvh] overflow-hidden bg-[#09060e] flex flex-col">
       {/* Top Floating Cyber Intelligence Header */}
       <TopHeader
         activeBook={activeBook}

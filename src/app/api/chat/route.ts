@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createNvidiaStream } from "@/lib/ai/nvidiaClient";
+import { createNvidiaStream, getNvidiaConfig } from "@/lib/ai/nvidiaClient";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
+    // 1. Check for API key availability upfront with clear server-side message
+    try {
+      getNvidiaConfig();
+    } catch (configErr: any) {
+      return NextResponse.json(
+        {
+          error:
+            configErr?.message ||
+            "NVIDIA_API_KEY is not defined in environment variables. Please check .env.local.",
+        },
+        { status: 500 }
+      );
+    }
+
     const body = await req.json();
     const { bookId, pageNumber = 1, messages } = body;
 

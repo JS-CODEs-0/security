@@ -81,14 +81,25 @@ export function BookReaderModal({
       aria-label={`Reading ${book.title}`}
     >
       {/* Top Reader Navigation Bar */}
-      <header className="flex items-center justify-between px-4 sm:px-8 py-3.5 border-b border-[#c084fc]/20 bg-[#0c0818]/90 shrink-0 shadow-lg">
-        <div className="flex items-center gap-4">
+      <header className="flex items-center justify-between px-3 sm:px-8 py-2.5 sm:py-3.5 border-b border-[#c084fc]/20 bg-[#0c0818]/90 shrink-0 shadow-lg">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={onClose}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-mono text-zinc-300 hover:text-white bg-[#140b26] hover:bg-[#1f103d] border border-[#c084fc]/30 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-mono text-zinc-300 hover:text-white bg-[#140b26] hover:bg-[#1f103d] border border-[#c084fc]/30 transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5 text-[#f472b6]" />
-            <span>Return to Shelf</span>
+            <span className="hidden xs:inline">Return to Shelf</span>
+            <span className="xs:hidden">Shelf</span>
+          </button>
+
+          {/* Mobile TOC / Book Switcher trigger */}
+          <button
+            onClick={() => setIsTocOpen(!isTocOpen)}
+            className="md:hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono text-[#f472b6] bg-[#140b26] border border-[#c084fc]/30 cursor-pointer"
+            title="Toggle Table of Contents"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>0{book.number}</span>
           </button>
 
           <div className="h-4 w-px bg-white/10 hidden sm:block" />
@@ -149,7 +160,7 @@ export function BookReaderModal({
         </div>
 
         {/* Right Tools & AI Launcher */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Font Controls */}
           <div className="hidden lg:flex items-center gap-1 bg-[#140b26] border border-[#c084fc]/25 rounded-xl p-0.5">
             <button
@@ -174,7 +185,7 @@ export function BookReaderModal({
           {/* AI Copilot Trigger Button */}
           <button
             onClick={() => setIsAiOpen(!isAiOpen)}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
               isAiOpen
                 ? "bg-gradient-to-r from-[#8b5cf6] to-[#f472b6] text-[#0b0714] font-bold border-transparent shadow-[0_0_16px_rgba(244,114,182,0.4)]"
                 : "bg-[#140b26] text-zinc-200 hover:text-white border-[#c084fc]/30 hover:border-[#f472b6]/60"
@@ -182,11 +193,12 @@ export function BookReaderModal({
           >
             <Sparkles className="w-3.5 h-3.5 text-[#f472b6]" />
             <span className="hidden sm:inline">AI Copilot</span>
+            <span className="sm:hidden">AI</span>
           </button>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
             aria-label="Close reader"
           >
             <X className="w-4 h-4" />
@@ -196,20 +208,64 @@ export function BookReaderModal({
 
       {/* Main Reading Frame */}
       <div className="flex-1 flex overflow-hidden relative">
+        {/* Mobile Backdrop for Drawer TOC */}
+        {isTocOpen && (
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 md:hidden"
+            onClick={() => setIsTocOpen(false)}
+          />
+        )}
+
         {/* Left Table of Contents Sidebar */}
         <aside
-          className={`w-72 bg-[#0c0818] border-r border-[#c084fc]/15 flex flex-col shrink-0 transition-all ${
+          className={`w-72 sm:w-80 max-w-[85vw] bg-[#0c0818] border-r border-[#c084fc]/15 flex flex-col shrink-0 transition-transform duration-300 ease-in-out ${
             isTocOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          } absolute md:relative z-20 h-full`}
+          } fixed md:relative z-40 md:z-20 h-full top-0 left-0`}
         >
-          <div className="p-4 border-b border-white/5">
-            <span className="text-[10px] font-mono tracking-widest text-[#f472b6] uppercase block mb-1">
-              Book 0{book.number} · 5 Pages
-            </span>
-            <h3 className="text-sm font-bold text-white font-serif tracking-tight">
-              {book.title}
-            </h3>
-            <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1">{book.discipline}</p>
+          <div className="p-4 border-b border-white/5 flex items-center justify-between">
+            <div>
+              <span className="text-[10px] font-mono tracking-widest text-[#f472b6] uppercase block mb-1">
+                Book 0{book.number} · 5 Pages
+              </span>
+              <h3 className="text-sm font-bold text-white font-serif tracking-tight truncate max-w-[190px]">
+                {book.title}
+              </h3>
+              <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1">{book.discipline}</p>
+            </div>
+            <button
+              onClick={() => setIsTocOpen(false)}
+              className="md:hidden p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/5 cursor-pointer"
+              aria-label="Close menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Quick Book Switcher in Mobile TOC */}
+          <div className="p-3 border-b border-white/5 bg-[#090514]/60">
+            <div className="text-[9px] font-mono text-zinc-400 uppercase tracking-wider mb-1.5">
+              Switch Field Guide (01–07):
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {CYBER_BOOKS.map((b) => (
+                <button
+                  key={b.id}
+                  onClick={() => {
+                    onSelectBook(b);
+                    setCurrentPageIndex(0);
+                    setIsTocOpen(false);
+                  }}
+                  className={`h-7 rounded-lg font-mono text-[11px] font-bold flex items-center justify-center transition-all cursor-pointer ${
+                    b.id === book.id
+                      ? "bg-gradient-to-br from-[#c084fc] to-[#f472b6] text-[#09060e] shadow-[0_0_8px_rgba(244,114,182,0.4)]"
+                      : "bg-[#140b26] text-zinc-400 hover:text-white border border-[#c084fc]/20"
+                  }`}
+                  title={`0${b.number}: ${b.title}`}
+                >
+                  0{b.number}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
@@ -270,7 +326,7 @@ export function BookReaderModal({
 
         {/* Center Editorial Reading Surface */}
         <main
-          className="flex-1 overflow-y-auto px-4 sm:px-12 md:px-20 py-8 sm:py-12 bg-gradient-to-b from-[#0e091c] via-[#09060e] to-[#07040d]"
+          className="flex-1 overflow-y-auto px-4 sm:px-12 md:px-20 py-6 sm:py-12 pb-24 sm:pb-12 bg-gradient-to-b from-[#0e091c] via-[#09060e] to-[#07040d]"
           style={{ fontSize: `${fontSizeMultiplier}rem` }}
         >
           <div className="max-w-3xl mx-auto space-y-8">
@@ -370,7 +426,7 @@ export function BookReaderModal({
                           </button>
                         </div>
                       </div>
-                      <pre className="p-4 text-xs font-mono text-[#d8b4fe] overflow-x-auto leading-relaxed bg-[#080510]">
+                      <pre className="p-3 sm:p-4 text-[11px] sm:text-xs font-mono text-[#d8b4fe] overflow-x-auto [touch-action:pan-x] leading-relaxed bg-[#080510]">
                         <code>{section.codeBlock.code}</code>
                       </pre>
                     </div>
@@ -426,6 +482,50 @@ export function BookReaderModal({
             </div>
           </div>
         </main>
+
+        {/* Mobile-Only Sticky Bottom Reading Controls */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-[#0c0818]/95 backdrop-blur-xl border-t border-[#c084fc]/25 px-3 py-2 pb-[max(10px,env(safe-area-inset-bottom))] flex items-center justify-between gap-2 shadow-[0_-8px_32px_rgba(0,0,0,0.85)]">
+          <button
+            onClick={() => setCurrentPageIndex((prev) => Math.max(0, prev - 1))}
+            disabled={currentPageIndex === 0}
+            className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-mono bg-[#140b26] border border-[#c084fc]/30 text-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all min-h-[40px] cursor-pointer"
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="w-3.5 h-3.5 text-[#f472b6]" />
+            <span>Prev</span>
+          </button>
+
+          <button
+            onClick={() => setIsTocOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono bg-[#1a0f33] border border-[#c084fc]/40 text-white min-h-[40px] cursor-pointer"
+            title="Open Table of Contents"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#f472b6] animate-pulse" />
+            <span className="font-bold text-[#c084fc]">0{currentPage.pageNumber}</span>
+            <span className="text-zinc-400">/ 05</span>
+          </button>
+
+          <button
+            onClick={() => setIsAiOpen(true)}
+            className="p-2 rounded-xl bg-[#140b26] border border-[#f472b6]/40 text-[#f472b6] min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+            title="Ask AI Copilot"
+            aria-label="Ask AI Copilot"
+          >
+            <Sparkles className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() =>
+              setCurrentPageIndex((prev) => Math.min(book.pages.length - 1, prev + 1))
+            }
+            disabled={currentPageIndex === book.pages.length - 1}
+            className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-mono bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-[#09060e] font-bold disabled:opacity-30 disabled:cursor-not-allowed transition-all min-h-[40px] cursor-pointer shadow-[0_0_12px_rgba(244,114,182,0.3)]"
+            aria-label="Next page"
+          >
+            <span>Next</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
         {/* Dedicated AI Assistant Drawer */}
         <AiAssistantDrawer
